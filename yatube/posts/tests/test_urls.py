@@ -71,6 +71,6 @@ class PostURLTests(TestCase):
 
 class ViewTestClass(TestCase):
     def test_error_page(self):
-        response = self.client.get('/nonexist-page/')
+        response = self.client.get('/nonexist_page/')
         self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed(response, 'core/404.html')
