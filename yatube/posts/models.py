@@ -56,6 +56,9 @@ class Comment(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.text[:15]
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -68,3 +71,18 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name="following"
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "author"],
+                name="unique_follow"
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F("author")),
+                name="prevent_self_follow",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.user} follows {self.author}"

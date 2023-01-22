@@ -3,15 +3,14 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User, Comment, Follow
 from .forms import PostForm, CommentForm
+from .utils import paginator_posts
 
 MAX_POSTS: int = 10
 
 
 def index(request):
     posts = Post.objects.all()
-    paginator = Paginator(posts, MAX_POSTS)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator_posts(request, posts)
     context = {
         'page_obj': page_obj,
     }
@@ -21,9 +20,7 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()[:MAX_POSTS]
-    paginator = Paginator(posts, MAX_POSTS)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator_posts(request, posts)
     context = {
         'group': group,
         'posts': posts,
@@ -36,13 +33,9 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=author)
-    posts_count = posts.count()
-    paginator = Paginator(posts, MAX_POSTS)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator_posts(request, posts)
     context = {
         'author': author,
-        'posts_count': posts_count,
         'page_obj': page_obj,
         'posts': posts,
     }
@@ -113,14 +106,9 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    # информация о текущем пользователе доступна в переменной request.user
-    post_list = Post.objects.filter(author__following__user=request.user)
-    paginator = Paginator(post_list, MAX_POSTS)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    title = 'Лента подписок'
+    posts = Post.objects.filter(author__following__user=request.user)
+    page_obj = paginator_posts(request, posts)
     context = {
-        'title': title,
         'page_obj': page_obj
     }
     return render(request, 'posts/follow.html', context)
@@ -129,7 +117,7 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     """Подписка на автора."""
-    author = User.objects.get(username=username)
+    author = get_object_or_404(User, username=username)
     if request.user != author:
         Follow.objects.get_or_create(user=request.user, author=author)
     return redirect('posts:follow_index')
@@ -138,7 +126,7 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     """Отписка от автора."""
-    author = User.objects.get(username=username)
+    author = get_object_or_404(User, username=username)
     Follow.objects.filter(
         user=request.user,
         author=author).delete()

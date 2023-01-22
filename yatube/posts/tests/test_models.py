@@ -25,8 +25,3 @@ class PostModelTest(TestCase):
         """Проверяем, что у моделей корректно работает __str__."""
         self.assertEqual(self.post.text[:15], str(self.post))
         self.assertEqual(self.group.title, str(self.group))
-
-# Можете меня пропустить побыстрее пожалуйста.
-# у меня просто времени до 22 числа закрыть джанго,
-# а я не могу начать делать проект за 6 спринт :(
-# Я на каникулах разберу эти темы получше
