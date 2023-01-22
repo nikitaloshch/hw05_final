@@ -4,7 +4,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 handler404 = 'core.views.page_not_found'
-handler500 = 'core.views.internal_error'
 handler403 = 'core.views.csrf_failure'
 
 urlpatterns = [
