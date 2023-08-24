@@ -12,7 +12,6 @@ git clone git@github.com:nikitaloshch/hw05_final.git
 Установим и активируем виртуальное окружение:
 ```
 python -m venv venv
-source venv/bin/activate
 source venv/Scripts/activate
 ```
 
